@@ -1,202 +1,216 @@
-let fromJS = JSON.parse(window.localStorage.getItem("idJSON"))
-console.log(fromJS)
+//Nous récupérons les données présentes dans le local Storage, puis nous les convertissons au format JS 
+let fromJS = JSON.parse(window.localStorage.getItem('idJSON'))
 
-// Séléction de la classe dans laquelle l'HTML vas être injecté 
+// Séléction de la classe dans laquelle l'HTML vas être injecté
+const addHTML = document.querySelector('#cart__items')
 
-const addHTML = document.querySelector("#cart__items")
-console.log(addHTML)
-
-// Si le panier est vide : afficher 'Le panier est vide'
-
-if(fromJS === null){
-    const emptyBasket = `
+/* Si le panier est vide : affichage du message contenu dans la const emptyBasketMessage (l.14 à 20)
+/* Si le panier n'est pas vide, alors : 
+     - Nous initions structureProduitPanier, un tableau vide
+     - Puis nous initions une boucle for sur la longueur de fromJS
+     - Pour chaque i de fromJS, nous ajoutons à structureProduitPanier les éléments HTML correspondants
+     - Pour finir, lorsque nous arrivons au dernier i de fromJS, alors nous injectons structureProduitPanier dans l'HTML 
+    */
+if (fromJS === null){
+  const emptyBasketMessage = `
     <div style = "padding-top: 90px; display: flex; text-align: center; place-content: center;">
         <div>Votre panier est vide ! N'hésitez pas à le meubler...</div>
     </div>
-    `;
-    addHTML.innerHTML = emptyBasket
-    console.log('Le panier de l\'utilisateur est actuellement vide')
-}else{
-    //Si le panier n'est pas vide : afficher les produits du Local Storage 
-    console.log('Je ne suis pas vide')
-    let structureProduitPanier = [];
-
-    for (k = 0; k < fromJS.length; k++){
-        console.log(`Le nombre de produit présent dans le panier est de : ` + fromJS.length)
-        
-        structureProduitPanier = structureProduitPanier + `
-
-            <article class="cart__item" data-id="${fromJS[k].selectedProduct_id}" data-color="${fromJS[k].option_produit}">
+    `
+  addHTML.innerHTML = emptyBasketMessage
+} else {
+  let structureProduitPanier = []
+  for (i = 0; i < fromJS.length; i++) {
+    structureProduitPanier =
+      structureProduitPanier +
+      `<article class="cart__item" data-id="${fromJS[i].selectedProduct_id}" data-color="${fromJS[i].option_produit}">
               <div class="cart__item__img">
-                <img src="${fromJS[k].image}" alt="Photographie d'un canapé">
+                <img src="${fromJS[i].image}" alt="Photographie d'un canapé">
               </div>
               <div class="cart__item__content">
                 <div class="cart__item__content__description">
-                  <h2>${fromJS[k].name}</h2>
-                  <p>${fromJS[k].option_produit}</p>
+                  <h2>${fromJS[i].name}</h2>
+                  <p>${fromJS[i].option_produit}</p>
                   <p class = "item_price">€</p>
                 </div>
                 <div class="cart__item__content__settings">
                   <div id="cart__item__content__settings__quantity">
                     <p>Qté : </p>
-                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${fromJS[k].quantite}">
+                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${fromJS[i].quantite}">
                   </div>
                   <div class="cart__item__content__settings__delete">
                     <button class="deleteItem">Supprimer</button>
                   </div>
                 </div>
               </div>
-            </article> 
-          `;
-    }
-    
-        if(k === fromJS.length){
-            //Injection HTML dans la page panier 
-            addHTML.innerHTML = structureProduitPanier
-          }
-
-          
-}
-//L'inclusion du prix 
-
-
-          
-/*-------------------------------------------------------LA SUPPRESSION DE PRODUIT(S)------------------------------------------------------------*/
-
-function getProduct(fromJS , callback){
-        const newArr = []
-          for(i = 0 ; i < fromJS.length ; i ++){
-            console.log(fromJS[i])
-            newArr.push(callback(fromJS[i]))
-          }
-          return newArr
+            </article>  `
+  }
+  if (i === fromJS.length) {
+    //Injection du HTML 
+    addHTML.innerHTML = structureProduitPanier
+  }
 }
 
+//LA SUPPRESSION DE PRODUIT
+// Nous ciblons l'élément à supprimer grâce à la méthode element.closest
+// Nous attendons que l'HTML soit injecté 
+// Boucle forEach afin de pouvoir écouter le click sur chacun des bouttons "SUPPRIMER"
+//Nous ajoutons les produits à conserver au tableau someProduct, grace à la méthode filter
+//Enfin, nous mettons à jour le local storage;
 let someProduct = []
-
-const removeProduct =  async(addHTML) => {
-  await addHTML;
+const removeProduct = async (addHTML) => {
+  await addHTML
   let deleteButtons = document.querySelectorAll('.deleteItem')
-  console.log(deleteButtons)
   deleteButtons.forEach((deleteButton) => {
     deleteButton.addEventListener('click', () => {
-      console.log(deleteButton)
       let totalToRemove = fromJS.length
-      console.log(totalToRemove); 
       let closestData = deleteButton.closest('article')
-      if(totalToRemove == 1){
-          return localStorage.removeItem('idJSON'),
-          console.log("Plus aucun article dans le panier"),
+      if (totalToRemove == 1) {
+        return (
+          localStorage.removeItem('idJSON'),
           alert('Votre panier est désormais vide'),
-          window.location.href = '../html/cart.html'
-      }else{
-          console.log("xx")
-          someProduct = fromJS.filter(produit => {
-            if(closestData.dataset.id != produit.selectedProduct_id ||
-              closestData.dataset.color != produit.option_produit){
-                console.log('vrai')
-                return true
-              }
-            }
-          )
-          console.log(someProduct)
-          localStorage.setItem("idJSON", JSON.stringify(someProduct))
-          console.log("Remove le produit séléctionné")
-          alert('Ce produit a supprimé du panier')
-          window.location.href = '../html/cart.html'
+          (window.location.href = '../html/cart.html')
+        )
+      } else {
+        someProduct = fromJS.filter((produit) => {
+          if (
+            closestData.dataset.id != produit.selectedProduct_id ||
+            closestData.dataset.color != produit.option_produit
+          ) {
+            return true
+          }
+        })
+        localStorage.setItem('idJSON', JSON.stringify(someProduct))
+        alert('Ce produit a supprimé du panier')
+        window.location.href = '../html/cart.html'
+      }
+    })
+  })
+}
+removeProduct()
+
+// LE CHANGEMENT DE QUANTTITE
+// Nous attendons que l'HTML soit injecté 
+// Nous récupérons ensuite la quantité présente dans chacun des éléments input
+// Boucle forEach afin de pouvoir écouter le changement sur chacun des inputs
+// Méthode element.closest appliqué afin de récupérer la quantité ainsi que l'ID du produit correspondant à l'input séléctionné
+// Méthode filter et find appliquées afin de cibler le produit avec la bonne option  
+// Pour finir, nous convertissons la valeur de l'input en Number, puis nous mettons à jour le local storage. 
+const changeQuantity = async (addHTML) => {
+  await addHTML
+  let quantitys = document.querySelectorAll('input.itemQuantity')
+  quantitys.forEach((quantity) => {
+    quantity.addEventListener('change', () => {
+      let closestInput = quantity.closest('input')
+      let closestData = quantity.closest('article')
+      const filtrage = fromJS.filter(
+        (produit) => produit.selectedProduct_id === closestData.dataset.id,
+      )
+      const foundSameOption = filtrage.find(
+        (produit) => produit.option_produit === closestData.dataset.color,
+      )
+      if (foundSameOption.option_produit === closestData.dataset.color) {
+        const toNumber = parseInt(closestInput.value)
+        foundSameOption.quantite = toNumber
+        localStorage.setItem('idJSON', JSON.stringify(fromJS))
+        window.alert('La quantité a bien été modifiée')
+        window.location.href = '../html/cart.html'
       }
     })
   })
 }
 
-removeProduct()
-
-/// LE CHANGEMENT DE QUANTTITE 
-const changeQuantity =  async(addHTML) => {
-  await addHTML;
-  let quantitys = document.querySelectorAll('input.itemQuantity')
-  console.log(quantitys)
-  quantitys.forEach((quantity) => {
-    quantity.addEventListener('change', () => {
-      console.log("OK")
-      let closestInput = quantity.closest('input')
-      console.log (closestInput)
-      console.log(closestInput.value)
-      let closestData = quantity.closest('article')
-      console.log(closestData)
-      console.log(closestData.dataset)
-      const filtrage = fromJS.filter(produit => produit.selectedProduct_id === closestData.dataset.id)
-      console.log(filtrage)
-      const foundSameOption = filtrage.find(produit => produit.option_produit === closestData.dataset.color)
-      console.log(foundSameOption)
-          if(foundSameOption.option_produit === closestData.dataset.color){
-            console.log('ok')
-            const toNumber = parseInt(closestInput.value)
-            foundSameOption.quantite = toNumber
-            console.log(foundSameOption)
-            console.log(fromJS)     
-            localStorage.setItem("idJSON", JSON.stringify(fromJS))
-            totalProducts.innerHTML = totalQuantity
-            //Mise à jour du prix total lors de la modification des produits
-            const resultPrice = callbackTotalPrices (fromJS, (val) => {
-              return val.prix
-            })
-            const resultQuantity = callbackTotalPrices (fromJS, (val) => {
-              return val.quantite
-            })
-            console.log(resultPrice)
-            console.log(resultQuantity)
-            totalPrice = 0 
-            for(i = 0; i < resultPrice.length; i ++){
-              totalPrices = totalPrice += resultPrice[i] * resultQuantity[i]
-               console.log(totalPrices)
-            }
-            document.getElementById('totalPrice').innerHTML = totalPrices
-            // window.location.href = '../html/cart.html'
-          }
-
-      }
-  ) })
-    }
-
 changeQuantity()
 
+/* LE NOMBRE TOTAL DE PRODUIT :
+A) Si from JS nous retourne une valeur, alors : 
+B) Nous initions la fonction callbackTotalProducts, nous servant à récupérer les produits présent dans le panier
+C) Puis nous récupérons les quantités de chacun des produit via la const result 
+D) Nous initions ensuite totalQuantity, à laquelle nous attribuons une valeur de 0, puis nous initions une boucle
+   for, dans laquelle nous additionnons au sein de totalQuantity chacun des nombres stockés dans result
+E) Nous injectons la valeur de totalQuantity dans le HTML 
+*/
 
-//// LE NOMBRE TOTAL DE PRODUIT : 
-
-if(fromJS){
-function callbackTotalProducts (arr, callback){
-  let newArr = []
-  for(i = 0; i < arr.length; i ++){
-    newArr.push(callback(arr[i]))
+if (fromJS) {
+  function callbackTotalProducts(arr, callback) {
+    let newArr = []
+    for (i = 0; i < arr.length; i++) {
+      newArr.push(callback(arr[i]))
+    }
+    return newArr
   }
-  return newArr
-}
-
-
-const result = callbackTotalProducts (fromJS, (val) => {
-  return val.quantite
-})
-
-console.log(result)
-totalQuantity = 0 
-for(i = 0; i < result.length; i ++){
-   console.log(totalQuantity += result[i])
-}
-
-console.log(totalQuantity)
-const totalProducts = document.getElementById('totalQuantity')
-totalProducts.innerHTML = totalQuantity
-}
-else{
+  const result = callbackTotalProducts(fromJS, (val) => {
+    return val.quantite
+  })
+  totalQuantity = 0
+  for (i = 0; i < result.length; i++) {
+    totalQuantity += result[i]
+  }
+  const totalProducts = document.getElementById('totalQuantity')
+  totalProducts.innerHTML = totalQuantity
+} else {
   const totalProducts = document.getElementById('totalQuantity')
   totalProducts.innerHTML = totalQuantity = 0
-
 }
 
-////// LE FORMULAIRE 
 
-//Nous commençons par récupérer chaque input 
+//Affichage DU PRIX UNITAIRE
+//Si fromJS nous retourne une valeur 
+//Alors nous récupérons les données au sein de l'API 
+//Nous convertissons ensuite ces données au format JS, que nous stockons dans "data" 
+//Puis nous initions une boucle for sur la longueur du tableau fromJS 
+//Au sein de cette boucle, nous appliquons la méthode .find afin que l'élément correspondant à l'ID du produit présent dans fromJS nous soit retourné
+//Pour finir, injectons dans le HTML le prix du produit retourné par find  
+if (fromJS) {
+  fetch('http://localhost:3000/api/products')
+    .then((res) => res.json())
+    .then((res) => {
+      data = res
+      for (i = 0; i < fromJS.length; i++) {
+        let getPrice = document.getElementsByClassName('item_price')
+        fetchedProduct = data.find(
+          (element) => element._id === fromJS[i].selectedProduct_id,
+        )
+        addPrice = (getPrice[i].innerHTML =
+          fetchedProduct.price + ' €')
+      }
+    })
+}
+
+//CALCUL DU PRIX TOTAL
+// Si fromJS nous retourne une valeur, alors : 
+// Nous utilisons Fetch pour récupérer les données API, avant de les transformer au format JS
+// Nous créeons l'objet tableau arrPrice, dans lequel nous stockerons les prix de chaque produit, multiplié par sa quantité. 
+// Une fois les données transformées au format JS, on initie une boucle for, afin de parcourir le tableau fromJS 
+// Nous appliquons ensuite la méthode find via la constante findSameID, afin que le premier élément avec un ID similaire nous soit retourné
+// Nous multiplions le prix de chaque produit par sa quantité, puis nous poussons les resultats dans arrPrice
+// Nous initions ensuite la variable sum; puis nous itérons sur la longueur de arrPrice afin d'ajouter à Sum chacune des valeurs présentes dans arrPrice
+// Pour finir, nous injectons la valeur obtenue dans Sum au HTML
+if (fromJS) {
+  fetch('http://localhost:3000/api/products')
+    .then((res) => res.json())
+    .then((res) => {
+      data = res
+      let arrPrice = []
+      for (i = 0; i < fromJS.length; i++) {
+        const findSameID = data.find(
+          (element) => element._id === fromJS[i].selectedProduct_id,
+        )
+        let totalPrice = (findSameID.price * fromJS[i].quantite)
+        arrPrice.push(totalPrice)
+      }
+      let sum = 0;
+      for (let i = 0; i < arrPrice.length; i++) {
+          sum += arrPrice[i];
+      }
+      document.getElementById('totalPrice').innerHTML = sum
+    })
+} else {
+  document.getElementById('totalPrice').innerHTML = 0 // Si aucun élément'est présent dans le panier
+}
+
+/// LE FORMULAIRE
+//Nous commençons par récupérer tous les inputs 
 let prenom = document.getElementById('firstName')
 let nom = document.getElementById('lastName')
 let email = document.getElementById('email')
@@ -204,237 +218,154 @@ let adresse = document.getElementById('address')
 let ville = document.getElementById('city')
 let commander = document.getElementById('order')
 
-console.log(prenom.value)
-console.log(nom)
-console.log(adresse)
-
-//Création d'un objet tableau dans lequel nous stockerons les informations du contact
+//Création d'un objet tableau dans lequel nous stockerons les valeurs présentes dans les input
 let valuePrenom, valueNom, valueEmail, valueAdresse, valueVille
 
 //LES REGEX
-//1- Le prénom 
+//Toutes basées sur des conditions. Tant que les informations renseignées par l'utilisateur ne correspondant pas à ce qui est demandée, la  
+// la valeur des input reste considéré comme nulle, ce qui empêche l'utilisateur de valider son panier. 
+
+//1- Le prénom
 prenom.addEventListener('input', function (e) {
-  valuePrenom
-  if(e.target.value.length === 0){
-    console.log('rien dans le champ prénom')
+  if (e.target.value.length === 0) {
     valuePrenom = null
-    console.log(valuePrenom)
-  }
-  else if(e.target.value.length < 3 || e.target.value.length > 25){
-    firstNameErrorMsg.innerHTML =  "La valeur doit être comprise entre 2 et 25 caractères"
+  } else if (e.target.value.length < 3 || e.target.value.length > 25) {
+    firstNameErrorMsg.innerHTML =
+      'La valeur doit être comprise entre 2 et 25 caractères'
     valuePrenom = null
-    console.log("Trop court ou trop long")
   }
-  if(e.target.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)) {
-    firstNameErrorMsg.innerHTML =  ""
+  if (e.target.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)) {
+    firstNameErrorMsg.innerHTML = ''
     valuePrenom = e.target.value
-    console.log("succes")
-    console.log(valuePrenom)
   }
-  if(e.target.value.match(/[0-9]{2,25}$/)) {
-    firstNameErrorMsg.innerHTML =  "Prénom ne peut pas contenir de chiffre"
+  if (e.target.value.match(/[0-9]{2,25}$/)) {
+    firstNameErrorMsg.innerHTML = 'Prénom ne peut pas contenir de chiffre'
     valuePrenom = null
-    console.log("Présence de chiffre détectées")
-    console.log(valuePrenom)
   }
-});
+})
 
 //2- Le Nom
 nom.addEventListener('input', function (e) {
-  valueNom
-  if(e.target.value.length === 0){
-    console.log('rien dans le champ Nom')
+  if (e.target.value.length === 0) {
     valueNom = null
-    console.log(valueNom)
-  }
-  else if(e.target.value.length < 3 || e.target.value.length > 25){
-    lastNameErrorMsg.innerHTML =  "La valeur du nom doit être comprise entre 2 et 25 caractères"
+  } else if (e.target.value.length < 3 || e.target.value.length > 25) {
+    lastNameErrorMsg.innerHTML =
+      'La valeur du nom doit être comprise entre 2 et 25 caractères'
     valueNom = null
-    console.log("Trop court ou trop long")
   }
-  if(e.target.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)) {
-    lastNameErrorMsg.innerHTML =  ""
+  if (e.target.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)) {
+    lastNameErrorMsg.innerHTML = ''
     valueNom = e.target.value
-    console.log("succes")
-    console.log(valueNom)
   }
-  if(e.target.value.match(/[0-9]{2,25}$/)) {
-    lastNameErrorMsg.innerHTML =  "Un nom ne peut pas contenir de chiffre"
+  if (e.target.value.match(/[0-9]{2,25}$/)) {
+    lastNameErrorMsg.innerHTML = 'Un nom ne peut pas contenir de chiffre'
     valueNom = null
-    console.log("Présence de chiffre détectées")
-    console.log(valueNom)
   }
-}
-)
+})
 
-//L'adresse 
-
+//L'adresse
 adresse.addEventListener('input', function (e) {
-  valueAdresse
-  if(e.target.value.length === 0){
-    console.log('rien dans le champ Adresse')
+  if (e.target.value.length === 0) {
     valueAdresse = null
-    console.log(valueAdresse)
-  }
-  else if(e.target.value.length < 2 || e.target.value.length > 100){
-    addressErrorMsg.innerHTML =  "L'adresse doit comptée au moins 2 caractères"
+  } else if (e.target.value.length < 2 || e.target.value.length > 100) {
+    addressErrorMsg.innerHTML = "L'adresse doit comptée au moins 2 caractères"
     valueAdresse = null
-    console.log("Trop court ou trop long")
   }
-  if(e.target.value.match(/^[0-9 a-z A-Z éèèuàaêô ,/;:-]{2,50}$/)) {
-    addressErrorMsg.innerHTML =  ""
+  if (e.target.value.match(/^[0-9 a-z A-Z éèèuàaêô ,/;:-]{2,50}$/)) {
+    addressErrorMsg.innerHTML = ''
     valueAdresse = e.target.value
-    console.log("succes")
-    console.log(valueAdresse)
   }
-}
-)
+})
 
-//La ville 
-
+//La ville
 ville.addEventListener('input', function (e) {
   valueVille
-  if(e.target.value.length === 0){
-    console.log('rien dans le champ Adresse')
+  if (e.target.value.length === 0) {
     valueVille = null
-    console.log(valueVille)
-  }
-  else if(e.target.value.length < 2 || e.target.value.length > 45){
-    cityErrorMsg.innerHTML =  "L'adresse doit comptée au moins 2 caractères"
+  } else if (e.target.value.length < 2 || e.target.value.length > 45) {
+    cityErrorMsg.innerHTML = "L'adresse doit comptée au moins 2 caractères"
     valueVille = null
-    console.log("Trop court ou trop long")
   }
-  if(e.target.value.match(/^[a-z A-Z éèèuàaêô ,/;:-]{2,45}$/)) {
-    cityErrorMsg.innerHTML =  ""
+  if (e.target.value.match(/^[a-z A-Z éèèuàaêô ,/;:-]{2,45}$/)) {
+    cityErrorMsg.innerHTML = ''
     valueVille = e.target.value
-    console.log("succes")
-    console.log(valueVille)
   }
-  if(e.target.value.match(/[0-9 +%.;]{2,45}$/)){
-    cityErrorMsg.innerHTML =  "Une ville ne peut pas contenir de chiffre"
+  if (e.target.value.match(/[0-9 +%.;]{2,45}$/)) {
+    cityErrorMsg.innerHTML = 'Une ville ne peut pas contenir de chiffre'
     valueVille = null
-    console.log("Présence de chiffre détectées")
-    console.log(valueVille)
   }
-}
-)
+})
 
-//L'adresse email 
+//L'adresse email
 email.addEventListener('input', (e) => {
   valueEmail
-  if(e.target.value.length === 0){
-    emailErrorMsg.innerHTML=""
+  if (e.target.value.length === 0) {
+    emailErrorMsg.innerHTML = ''
     valueEmail = null
-    console.log(valueEmail)
-  }
-  else if(e.target.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-    emailErrorMsg.innerHTML="";
+  } else if (e.target.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+    emailErrorMsg.innerHTML = ''
     valueEmail = e.target.value
-    console.log(valueEmail)
   }
   if (
     !e.target.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/) &&
     !e.target.value.length == 0
-    ) {
-    emailErrorMsg.innerHTML="Adresse e-mail incorrecte. Exemple du format attendu 'clementjeulin@gmail.com";
+  ) {
+    emailErrorMsg.innerHTML =
+      "Adresse e-mail incorrecte. Exemple du format attendu 'clementjeulin@gmail.com"
     valueEmail = null
-    }
+  }
 })
 
 ////LA COMMANDE
-//Sélection de l'input par l'ID 
-
+//Récupération du formulaire
 let order = document.querySelector('.cart__order__form')
 console.log(order)
 
-order.addEventListener('submit', (e)=> {
+//Création du addEventListener sur le submit, 
+order.addEventListener('submit', (e) => {
   e.preventDefault()
-  console.log('get stopper')
-
-  if(valuePrenom && valueNom && valueAdresse && valueEmail && valueVille
-     ){
-      console.log("C'est Parti, on envoie les données")
-      const commandeFinal = JSON.parse(localStorage.getItem('idJSON'))
-      let products = []
-      commandeFinal.forEach((produit) => 
-      products.push(produit.selectedProduct_id)
-      );
-    
-      const toSend = {
-        contact : {
-          firstName : valuePrenom,
-          lastName : valueNom,
-          address : valueAdresse,
-          city : valueVille,
-          email : valueEmail,
-        },
-        products,
-      }
-      console.log(toSend)
-
+//Création de la reqûete à envoyer vers l'API, avec pour condition le fait que chaque input ait une valeur valide
+  if (valuePrenom && valueNom && valueAdresse && valueEmail && valueVille) {
+    const commandeFinal = JSON.parse(localStorage.getItem('idJSON'))
+    let products = []
+    commandeFinal.forEach((produit) =>
+      products.push(produit.selectedProduct_id),
+    )
+    //Création des objets "contact" et "products", qui seront ensuite transmis au serveur via la méthod POST, au sein de la const promise 
+    const toSend = {
+      contact: {
+        firstName: valuePrenom,
+        lastName: valueNom,
+        address: valueAdresse,
+        city: valueVille,
+        email: valueEmail,
+      },
+      products,
+    }
+      //Application de la méthode POST
       const promise = fetch('http://localhost:3000/api/products/order', {
-      method:'POST',
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(toSend),
-      })
-      //Pour voir le résultat du serveur dans la console.
-      promise.then(async(response)=>{
-        try{
-          const contenu = await response.json();
-          console.log(contenu)
-          if(response.ok){
-            //Récupération de l'ID de l'order
-              console.log(contenu.orderId)
-              localStorage.setItem('responseId', contenu.orderId)
-            //Changement de page
-              window.location = '../html/confirmation.html'
-            }
-        }catch(e){
-          console.log(e)
+    })
+    
+    //Une fois que promise a été executée, nous enclenchons response, contenant le bloc try. Ce dernier ne comprend qu'une instruction. 
+    //Si le statut de response est ok, alors nous redirigeons l'utilisateur vers la page confirmation, à laquelle nous passons contenu.orderId en paramètre d'URL
+    promise.then(async (response) => {
+      try {
+        const contenu = await response.json()
+        if (response.ok){
+          //Changement de page, avec ajout de l'élément OrderId à l'URL
+          window.location = `../html/confirmation.html?${contenu.orderId}`
+          return contenu.orderId
         }
-      })
-
-    }
-     else
-     { alert('Remplir le formulaire correctement')}
-  })
-  
-
-  if(fromJS){
-  const fetchingPrice = fetch('http://localhost:3000/api/products')
-          .then ((res) => res.json())
-          .then ((res) =>{ data = res
-            for(i = 0 ; i < fromJS.length ; i ++ ){
-              console.log(data)
-              console.log(fromJS[i])
-              let getPrice = document.getElementsByClassName('item_price')
-              console.log(getPrice)
-              fetchedProduct = data.find(((element) => element._id === fromJS[i].selectedProduct_id))
-              console.log(fetchedProduct)
-              console.log(fetchedProduct.price)
-              console.log(getPrice[i])
-              let addPrice = getPrice[i].innerHTML = fetchedProduct.price / 10 + ' €'
-        }
-       }
-      )
-   }
-
-   //CALCUL DU PRIX TOTAL
-    if(fromJS){
-    fetch('http://localhost:3000/api/products')
-    .then ((res) => res.json())
-    .then ((res) =>{ data = res
-    for(i = 0 ; i < fromJS.length; i ++){
-    const total = (fromJS[i].quantite)
-    console.log(total)
-    const findSameID = data.find(((element) => element._id === fromJS[i].selectedProduct_id))
-    const totalPrice = (findSameID.price * fromJS[i].quantite / 10)
-    document.getElementById('totalPrice').innerHTML = totalPrice
-          }
-        }
-      )
-    }else{
-      document.getElementById('totalPrice').innerHTML = 0
-    }
+      } catch (e) {
+        console.log(e)
+      }
+    })
+  } else {
+    alert('Remplir le formulaire correctement')
+  }
+})
