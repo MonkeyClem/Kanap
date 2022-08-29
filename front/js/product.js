@@ -8,75 +8,66 @@ console.log(_id)
 
 
 const promiseProduct = fetch(`http://localhost:3000/api/products/${_id}`)
-console.log(promiseProduct)
+.then((res) => res.json())
+.then((res) => { 
+  meubleData = res
+  console.log(meubleData)
+  document.getElementById('item').innerHTML = `
+                       <article>
+                          <div class="item__img">
+                           <img src="${meubleData.imageUrl}" alt="${meubleData.altTxt}">
+                           </div>
+                           <div class="item__content">
+  
+                           <div class="item__content__titlePrice">
+                               <h1>${meubleData.name}</h1>
+                               <p>Prix : <span id="price"></span> €</p>
+                           </div>
+  
+                           <div class="item__content__description">
+                               <p class="item__content__description__title">Description :</p>
+                               <p id="description"><p>${meubleData.description}</p>
+                           </div>
+  
+                           <div class="item__content__settings">
+                               <div class="item__content__settings__color">
+                               <label for="color-select">Choisir une couleur :</label>
+                               <select name="color-select" id="colors">
+  
+                               </select>
+                               </div>
+  
+                               <div class="item__content__settings__quantity">
+                               <label for="itemQuantity">Nombre d'article(s) (1-100) :</label>
+                               <input type="number" name="itemQuantity" min="1" max="100" value="0" id="quantity">
+                               </div>
+                           </div>
+  
+                           <div class="item__content__addButton">
+                               <button id="addToCart">Ajouter au panier</button>
+                           </div>
+  
+                          </div>
+                       </article>
+                         `
+        //Déclaration de la constante optionsColors, qui nous sert à récuperer les éléments contenus dans le tableau 'colors'
+        //Déclaration de la variable structureColors, un tableau vide dans lequel nous ajouterons les valeurs contenues dans optionsColors
+        //Pour ce faire, nous utilisons une boucle for : à chaque itération, nous ajoutons la nouvelle valeur au tableau structureColors
+        //Enfin, nous injectons structureColors dans le HTML 
+        const optionColors =  meubleData.colors
+        let structureColors = []
+        
+        for (let i = 0; i < optionColors.length; i++) {
+          structureColors =
+            structureColors +
+            `<option value="${optionColors[i]}">${optionColors[i]}</option>`
+        }
+        const positionColorOptions = document.querySelector('#colors')
+        positionColorOptions.innerHTML = structureColors
+      })
+  // 
 
-//----------------------------L'AFFICHAGE DU PRODUIT SELECTIONNE PAR L'UTILISATEUR, AVEC LES INFORMATIONS CORRESPONDANTES----------------------------//
-//Cette fonction nous sert à afficher le produit séléctionnée par l'utiisateur, en utilisant la méthode find 
-// afin que l'élément avec l'ID correspondant nous soit retourné
-// function displaySelectedProduct() {
-//   fetch('http://localhost:3000/api/products')
-//     .then((res) => res.json())
-//     .then((res) => {
-//       data = res
-//       const selectedProduct_id = data.find((meuble) => meuble._id === _id)
-//       document.getElementById('item').innerHTML = `
-//                     <article>
-//                         <div class="item__img">
-//                         <img src="${selectedProduct_id.imageUrl}" alt="${selectedProduct_id.altTxt}">
-//                         </div>
-//                         <div class="item__content">
-
-//                         <div class="item__content__titlePrice">
-//                             <h1>${selectedProduct_id.name}</h1>
-//                             <p>Prix : <span id="price"></span> €</p>
-//                         </div>
-
-//                         <div class="item__content__description">
-//                             <p class="item__content__description__title">Description :</p>
-//                             <p id="description"><p>${selectedProduct_id.description}</p>
-//                         </div>
-
-//                         <div class="item__content__settings">
-//                             <div class="item__content__settings__color">
-//                             <label for="color-select">Choisir une couleur :</label>
-//                             <select name="color-select" id="colors">
-
-//                             </select>
-//                             </div>
-
-//                             <div class="item__content__settings__quantity">
-//                             <label for="itemQuantity">Nombre d'article(s) (1-100) :</label>
-//                             <input type="number" name="itemQuantity" min="1" max="100" value="0" id="quantity">
-//                             </div>
-//                         </div>
-
-//                         <div class="item__content__addButton">
-//                             <button id="addToCart">Ajouter au panier</button>
-//                         </div>
-
-//                         </div>
-//                     </article>
-//                       `
-//       //Déclaration de la constante optionsColors, qui nous sert à récuperer les éléments contenus dans le tableau 'colors'
-//       //Déclaration de la variable structureColors, un tableau vide dans lequel nous ajouterons les valeurs contenues dans optionsColors
-//       //Pour ce faire, nous utilisons une boucle for : à chaque itération, nous ajoutons la nouvelle valeur au tableau structureColors
-//       //Enfin, nous injectons structureColors dans le HTML 
-//       const optionColors = selectedProduct_id.colors
-//       let structureColors = []
-      
-//       for (let i = 0; i < optionColors.length; i++) {
-//         structureColors =
-//           structureColors +
-//           `<option value="${optionColors[i]}">${optionColors[i]}</option>`
-//       }
-//       const positionColorOptions = document.querySelector('#colors')
-//       positionColorOptions.innerHTML = structureColors
-//     })
-// }
-// displaySelectedProduct()
-
-//------------------------------------- LA GESTION DU PANIER -------------------------------------//
-
+  
 //Récupérer les données séléctionnées par l'utilisateur afin de les envoyer vers le panier
 //Récupération des données de l'API :
 fetch('http://localhost:3000/api/products')
