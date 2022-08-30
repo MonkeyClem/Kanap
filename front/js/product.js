@@ -1,17 +1,12 @@
 //Récupération de la chaine de requête dans l'URL, cela vas nous servir à afficher le produit selectionné sur la page index
 const queryString_url_id = window.location.search
-console.log(queryString_url_id)
 const urlSearchParams = new URLSearchParams(queryString_url_id)
-console.log(urlSearchParams)
 const _id = urlSearchParams.get('_id')
-console.log(_id)
-
 
 const promiseProduct = fetch(`http://localhost:3000/api/products/${_id}`)
-.then((res) => res.json())
-.then((res) => { 
-  meubleData = res
-  console.log(meubleData)
+.then((response) => response.json())
+.then((response) => { 
+  meubleData = response
   document.getElementById('item').innerHTML = `
                        <article>
                           <div class="item__img">
@@ -50,7 +45,7 @@ const promiseProduct = fetch(`http://localhost:3000/api/products/${_id}`)
                           </div>
                        </article>
                          `
-        //Déclaration de la constante optionsColors, qui nous sert à récuperer les éléments contenus dans le tableau 'colors'
+        //Déclaration de la constante optionsColors, qui nous sert à récuperer les éléments contenus dans les tableaux 'colors' de chaque index de meubleData
         //Déclaration de la variable structureColors, un tableau vide dans lequel nous ajouterons les valeurs contenues dans optionsColors
         //Pour ce faire, nous utilisons une boucle for : à chaque itération, nous ajoutons la nouvelle valeur au tableau structureColors
         //Enfin, nous injectons structureColors dans le HTML 
@@ -98,7 +93,6 @@ fetch('http://localhost:3000/api/products')
         quantite: choixQuantity,
         image: selectedProduct_id.imageUrl,
       }
-      console.log(optionsProduit.option_produit)
       //Nous stockons les éventuels résultats provenants du localStorage dans fromJSON
       fromJSON = localStorage.getItem('idJSON')
       //Fonction servant à ajouter un article au panier 

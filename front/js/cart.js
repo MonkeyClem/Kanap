@@ -218,57 +218,90 @@ let adresse = document.getElementById('address')
 let ville = document.getElementById('city')
 let commander = document.getElementById('order')
 
-//Création d'un objet tableau dans lequel nous stockerons les valeurs présentes dans les input
+
+//Création d'un objet dans lequel nous stockerons les valeurs présentes dans les input
 let valuePrenom, valueNom, valueEmail, valueAdresse, valueVille
 
 //LES REGEX
-//Toutes basées sur des conditions. Tant que les informations renseignées par l'utilisateur ne correspondant pas à ce qui est demandée, la  
-// la valeur des input reste considéré comme nulle, ce qui empêche l'utilisateur de valider son panier. 
+//Toutes basées sur des conditions. Tant que les informations renseignées par l'utilisateur ne correspondant pas à ce qui est demandé, la  
 
-//1- Le prénom
+const nameOrSurname_LengthError = 'La valeur de ce champ doit être comprise entre 2 et 25 caractères'
+const adressLengthError = "La valeur de ce champ doit être comprise entre 2 et 50 caractères"
+const numberNotAllowed = 'Aucun chiffre ne peut être renseigné dans ce champ'
+
+const getErrorMsg = document.querySelectorAll('.cart__order__form__question')
+console.log(getErrorMsg)
+// element = getErrorMsg.querySelector("p");
+
+
+function checkNameAndSurname(Nom){
+   if(Nom.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)){
+      return true;
+   }else{
+       return false
+   }
+}
+
+  // //1- Le prénom
 prenom.addEventListener('input', function (e) {
-  if (e.target.value.length === 0) {
-    valuePrenom = null
-  } else if (e.target.value.length < 3 || e.target.value.length > 25) {
-    firstNameErrorMsg.innerHTML =
-      'La valeur doit être comprise entre 2 et 25 caractères'
-    valuePrenom = null
-  }
-  if (e.target.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)) {
+  checkNameAndSurname(prenom)
+  if (checkNameAndSurname(prenom) === false){    
+    firstNameErrorMsg.innerHTML = nameOrSurname_LengthError
+  }else{
     firstNameErrorMsg.innerHTML = ''
     valuePrenom = e.target.value
+    console.log(valuePrenom)
   }
-  if (e.target.value.match(/[0-9]{2,25}$/)) {
-    firstNameErrorMsg.innerHTML = 'Prénom ne peut pas contenir de chiffre'
-    valuePrenom = null
-  }
+  // if (e.target.value.length === 0) {
+  //   valuePrenom = null
+  // } else if (e.target.value.length < 2 || e.target.value.length > 25) {
+  //   firstNameErrorMsg.innerHTML = nameLengthError   
+  //   valuePrenom = null
+  // }
+  //  if (e.target.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)) {
+  //     firstNameErrorMsg.innerHTML = ''
+  //     valuePrenom = e.target.value
+  //     console.log(valuePrenom)
+  //  }
+  // if (e.target.value.match(/[0-9]{2,25}$/)) {
+  //   firstNameErrorMsg.innerHTML = numberNotAllowed
+  //   valuePrenom = null
+  // }
 })
+
 
 //2- Le Nom
 nom.addEventListener('input', function (e) {
-  if (e.target.value.length === 0) {
-    valueNom = null
-  } else if (e.target.value.length < 3 || e.target.value.length > 25) {
-    lastNameErrorMsg.innerHTML =
-      'La valeur du nom doit être comprise entre 2 et 25 caractères'
-    valueNom = null
-  }
-  if (e.target.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)) {
-    lastNameErrorMsg.innerHTML = ''
-    valueNom = e.target.value
-  }
-  if (e.target.value.match(/[0-9]{2,25}$/)) {
-    lastNameErrorMsg.innerHTML = 'Un nom ne peut pas contenir de chiffre'
-    valueNom = null
-  }
+  checkNameAndSurname(nom)
+  if (checkNameAndSurname(nom) === false){    
+    lastNameErrorMsg.innerHTML = nameOrSurname_LengthError
+  }else{
+      lastNameErrorMsg.innerHTML = ''
+      valueNom = e.target.value
+      console.log(valueNom)
+    }
+  // if (e.target.value.length === 0) {
+  //   valueNom = null
+  // } else if (e.target.value.length < 2 || e.target.value.length > 25) {
+  //   lastNameErrorMsg.innerHTML = nameLengthError
+  //   valueNom = null
+  // }
+  // if (e.target.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)) {
+  //   lastNameErrorMsg.innerHTML = ''
+  //   valueNom = e.target.value
+  // }
+  // if (e.target.value.match(/[0-9]{2,25}$/)) {
+  //   lastNameErrorMsg.innerHTML = numberNotAllowed
+  //   valueNom = null
+  // }
 })
 
 //L'adresse
 adresse.addEventListener('input', function (e) {
   if (e.target.value.length === 0) {
     valueAdresse = null
-  } else if (e.target.value.length < 2 || e.target.value.length > 100) {
-    addressErrorMsg.innerHTML = "L'adresse doit comptée au moins 2 caractères"
+  } else if (e.target.value.length < 2 || e.target.value.length > 50) {
+    addressErrorMsg.innerHTML = adressLengthError
     valueAdresse = null
   }
   if (e.target.value.match(/^[0-9 a-z A-Z éèèuàaêô ,/;:-]{2,50}$/)) {
@@ -279,14 +312,13 @@ adresse.addEventListener('input', function (e) {
 
 //La ville
 ville.addEventListener('input', function (e) {
-  valueVille
   if (e.target.value.length === 0) {
     valueVille = null
-  } else if (e.target.value.length < 2 || e.target.value.length > 45) {
-    cityErrorMsg.innerHTML = "L'adresse doit comptée au moins 2 caractères"
+  } else if (e.target.value.length < 2 || e.target.value.length > 50) {
+    cityErrorMsg.innerHTML = adressLengthError
     valueVille = null
   }
-  if (e.target.value.match(/^[a-z A-Z éèèuàaêô ,/;:-]{2,45}$/)) {
+  if (e.target.value.match(/^[a-z A-Z éèèuàaêô ,/;:-]{2,50}$/)) {
     cityErrorMsg.innerHTML = ''
     valueVille = e.target.value
   }
