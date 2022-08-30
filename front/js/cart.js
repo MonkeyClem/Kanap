@@ -229,11 +229,6 @@ const nameOrSurname_LengthError = 'La valeur de ce champ doit être comprise ent
 const adressLengthError = "La valeur de ce champ doit être comprise entre 2 et 50 caractères"
 const numberNotAllowed = 'Aucun chiffre ne peut être renseigné dans ce champ'
 
-const getErrorMsg = document.querySelectorAll('.cart__order__form__question')
-console.log(getErrorMsg)
-// element = getErrorMsg.querySelector("p");
-
-
 function checkNameAndSurname(Nom){
    if(Nom.value.match(/^[a-z A-Z éèèuàaêô -]{2,25}$/)){
       return true;
@@ -250,7 +245,6 @@ prenom.addEventListener('input', function (e) {
   }else{
     firstNameErrorMsg.innerHTML = ''
     valuePrenom = e.target.value
-    console.log(valuePrenom)
   }
   // if (e.target.value.length === 0) {
   //   valuePrenom = null
@@ -278,7 +272,6 @@ nom.addEventListener('input', function (e) {
   }else{
       lastNameErrorMsg.innerHTML = ''
       valueNom = e.target.value
-      console.log(valueNom)
     }
   // if (e.target.value.length === 0) {
   //   valueNom = null
@@ -351,7 +344,6 @@ email.addEventListener('input', (e) => {
 ////LA COMMANDE
 //Récupération du formulaire
 let order = document.querySelector('.cart__order__form')
-console.log(order)
 
 //Création du addEventListener sur le submit, 
 order.addEventListener('submit', (e) => {
@@ -394,7 +386,6 @@ order.addEventListener('submit', (e) => {
           return contenu.orderId
         }
       } catch (e) {
-        console.log(e)
       }
     })
   } else {
